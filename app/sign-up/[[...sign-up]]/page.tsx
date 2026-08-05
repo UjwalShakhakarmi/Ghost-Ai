@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { SignUp } from "@clerk/nextjs";
 import { Sparkles, CheckCircle2 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Ghost AI - Sign Up",
+};
 
 export default function SignUpPage() {
   return (

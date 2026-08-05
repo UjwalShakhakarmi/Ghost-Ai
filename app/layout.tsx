@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ghost AI - Sign In",
+  title: "Ghost AI",
   description: "Design systems at the speed of thought.",
 };
 

@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { SignIn } from "@clerk/nextjs";
 import { Cpu, Users, Zap } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Ghost AI - Sign In",
+};
 
 export default function SignInPage() {
   return (
