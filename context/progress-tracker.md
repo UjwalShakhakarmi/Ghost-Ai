@@ -4,15 +4,16 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Phase 1: Design System & Core UI Primitives
+- Phase 2: Editor Chrome & Shell
 
 ## Current Goal
 
-- Install and configure shadcn/ui, lucide-react, cn helper, and primitive UI components matching the dark theme.
+- Implement base editor chrome components: top navbar and floating left project sidebar.
 
 ## Completed
 
 - 01-design-system.md (Design System & UI Primitives)
+- 02-editor.md (Editor Chrome & Project Sidebar)
 
 ## In Progress
 

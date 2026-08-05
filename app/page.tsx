@@ -1,98 +1,78 @@
+"use client";
+
+import * as React from "react";
+import { EditorNavbar } from "@/components/editor/editor-navbar";
+import { ProjectSidebar } from "@/components/editor/project-sidebar";
+import { EditorDialog } from "@/components/editor/editor-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
-import { Sparkles, Terminal } from "lucide-react";
+import { Plus } from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-base p-6 text-copy-primary">
-      <main className="w-full max-w-2xl space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-brand" />
-            <h1 className="text-2xl font-bold tracking-tight text-copy-primary">
-              ghost Al
-            </h1>
-          </div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="rounded-xl border-surface-border">
-                Open Dialog
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="rounded-3xl border-surface-border bg-surface text-copy-primary">
-              <DialogHeader>
-                <DialogTitle className="text-brand">Design System Initialized</DialogTitle>
-                <DialogDescription className="text-copy-muted">
-                  All UI primitive components and tokens are configured for dark theme.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <Input placeholder="Enter prompt..." className="rounded-xl border-surface-border bg-subtle" />
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
-        <Card className="rounded-2xl border-surface-border bg-surface text-copy-primary">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Terminal className="h-5 w-5 text-accent-ai-text" />
-              <span>Workspace Primitives</span>
-            </CardTitle>
-            <CardDescription className="text-copy-muted">
-              Standardized dark theme surface and components
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Tabs defaultValue="tab-input" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 rounded-xl bg-subtle">
-                <TabsTrigger value="tab-input">Inputs</TabsTrigger>
-                <TabsTrigger value="tab-scroll">Scroll Area</TabsTrigger>
-              </TabsList>
-              <TabsContent value="tab-input" className="space-y-3 pt-3">
-                <Input placeholder="Component search..." className="rounded-xl border-surface-border bg-subtle" />
-                <Textarea placeholder="System instructions..." className="rounded-xl border-surface-border bg-subtle" />
-              </TabsContent>
-              <TabsContent value="tab-scroll" className="pt-3">
-                <ScrollArea className="h-32 rounded-xl border border-surface-border bg-subtle p-3">
-                  <div className="space-y-2 text-sm text-copy-secondary">
-                    <p className={cn("font-mono text-xs text-brand")}>[SYSTEM] Design system online.</p>
-                    <p>[INFO] Base UI / Radix primitives loaded.</p>
-                    <p>[INFO] Geist Sans & Mono fonts active.</p>
-                    <p>[INFO] 01-design-system spec implemented.</p>
-                  </div>
-                </ScrollArea>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="secondary" className="rounded-xl">Cancel</Button>
-            <Button className="rounded-xl bg-brand text-base hover:bg-brand/90">
-              Confirm
+  return (
+    <div className="flex h-screen w-screen flex-col overflow-hidden bg-base text-copy-primary">
+      {/* Top Fixed Editor Navbar */}
+      <EditorNavbar
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+      />
+
+      {/* Main Workspace Area */}
+      <div className="relative flex flex-1 overflow-hidden">
+        {/* Floating Project Sidebar */}
+        <ProjectSidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          onNewProject={() => setIsDialogOpen(true)}
+        />
+
+        {/* Editor Canvas Area */}
+        <main className="flex flex-1 items-center justify-center bg-base p-6 text-center">
+          <div className="flex flex-col items-center gap-4 max-w-md">
+            <div className="rounded-full bg-subtle p-4 border border-surface-border">
+              <Plus className="h-8 w-8 text-brand" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-copy-primary">
+              Canvas Workspace
+            </h2>
+            <p className="text-sm text-copy-muted">
+              Toggle the left project sidebar using the navbar icon or click below to test the dialog pattern.
+            </p>
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="rounded-xl bg-brand text-bg-base hover:bg-brand/90 font-medium"
+            >
+              Test New Project Dialog
             </Button>
-          </CardFooter>
-        </Card>
-      </main>
+          </div>
+        </main>
+      </div>
+
+      {/* Ready-to-use Dialog Pattern */}
+      <EditorDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        title="Create New Project"
+        description="Set up a new architecture diagram on your dark workspace canvas."
+        primaryActionLabel="Create Project"
+        onPrimaryAction={() => {
+          // Action handler for future implementation
+        }}
+        secondaryActionLabel="Cancel"
+      >
+        <div className="space-y-3">
+          <label className="text-xs font-medium text-copy-secondary">
+            Project Name
+          </label>
+          <input
+            type="text"
+            placeholder="my-awesome-system"
+            className="w-full rounded-xl border border-surface-border bg-subtle px-3 py-2 text-sm text-copy-primary outline-none focus:border-brand"
+          />
+        </div>
+      </EditorDialog>
     </div>
   );
 }
