@@ -4,16 +4,17 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Phase 2: Editor Chrome & Shell
+- Phase 3: Authentication & User Management
 
 ## Current Goal
 
-- Implement base editor chrome components: top navbar and floating left project sidebar.
+- Wire Clerk into Next.js app: provider, proxy, auth pages, redirects, route protection, and user menu.
 
 ## Completed
 
 - 01-design-system.md (Design System & UI Primitives)
 - 02-editor.md (Editor Chrome & Project Sidebar)
+- 03-auth.md (Clerk Authentication & Route Protection)
 
 ## In Progress
 

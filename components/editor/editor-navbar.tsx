@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { PanelLeftClose, PanelLeftOpen, Sparkles } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
 interface EditorNavbarProps {
@@ -45,8 +46,16 @@ export function EditorNavbar({
         {/* Placeholder for workspace title / canvas status in future chapters */}
       </div>
 
-      {/* Right section stays empty for now */}
-      <div className="flex items-center justify-end min-w-[200px]" />
+      {/* Right section: Clerk UserButton for profile settings and logout */}
+      <div className="flex items-center justify-end min-w-[200px]">
+        <UserButton
+          appearance={{
+            elements: {
+              avatarBox: "h-8 w-8 rounded-full border border-surface-border",
+            },
+          }}
+        />
+      </div>
     </header>
   );
 }
