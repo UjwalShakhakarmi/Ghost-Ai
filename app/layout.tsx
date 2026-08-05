@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ghost Al",
-  description: "Visual AI Architecture Canvas",
+  title: "Ghost AI - Sign In",
+  description: "Design systems at the speed of thought.",
 };
 
 export default function RootLayout({
@@ -28,17 +28,26 @@ export default function RootLayout({
     <ClerkProvider
       appearance={{
         theme: dark,
+        variables: {
+          colorPrimary: "#00d8d6",
+          colorBackground: "#111116",
+          borderRadius: "0.75rem",
+        },
         elements: {
-          card: "bg-surface border border-surface-border shadow-2xl rounded-2xl",
-          headerTitle: "text-copy-primary font-bold",
-          headerSubtitle: "text-copy-muted",
+          card: "bg-[#111116] border border-[#1e1e28] shadow-2xl rounded-2xl p-8 w-full max-w-md",
+          headerTitle: "text-white font-bold text-xl text-center",
+          headerSubtitle: "text-[#808090] text-sm text-center",
           socialButtonsBlockButton:
-            "border border-surface-border bg-subtle text-copy-primary hover:bg-elevated",
+            "border border-[#262636] bg-[#161620] text-white hover:bg-[#1f1f2e] rounded-xl h-11 font-medium",
           formButtonPrimary:
-            "bg-brand text-bg-base hover:bg-brand/90 font-medium rounded-xl",
-          footerActionLink: "text-brand hover:text-brand/90",
+            "bg-[#00d8d6] text-black hover:bg-[#00c2c0] font-semibold rounded-xl h-11 text-sm tracking-wide transition-colors",
+          footerActionLink: "text-[#00d8d6] hover:underline font-medium",
           formFieldInput:
-            "bg-subtle border border-surface-border text-copy-primary focus:border-brand rounded-xl",
+            "bg-[#181822] border border-[#262636] text-white focus:border-[#00d8d6] rounded-xl h-11 px-4 text-sm",
+          formFieldLabel: "text-xs font-semibold text-white uppercase tracking-wider mb-1.5",
+          dividerLine: "bg-[#20202d]",
+          dividerText: "text-[#606070] text-xs uppercase tracking-widest",
+          footer: "border-t border-[#1a1a24] bg-transparent text-xs text-[#707080]",
         },
       }}
     >
@@ -46,7 +55,7 @@ export default function RootLayout({
         lang="en"
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
       >
-        <body className="min-h-full flex flex-col bg-base text-copy-primary">
+        <body className="min-h-full flex flex-col bg-[#0a0a0c] text-white">
           {children}
         </body>
       </html>
