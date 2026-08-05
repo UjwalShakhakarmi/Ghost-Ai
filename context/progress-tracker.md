@@ -4,21 +4,23 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Phase 4: Project Dialogs & Editor Home
+- Phase 5: Database Schema & Prisma Client
 
 ## Current Goal
 
-- Implement editor home, project dialogs (Create, Rename, Delete), slug preview, and sidebar project item actions.
+- Configure Prisma ORM schema with PostgreSQL models (Project, Collaborator, Spec, TaskRun) and export global client.
 
 ## Completed
 
 - 01-design-system.md (Design System & UI Primitives)
 - 02-editor.md (Editor Chrome & Project Sidebar)
 - 03-auth.md (Clerk Authentication & Route Protection)
+- 04-project-dialogs.md (Project Dialogs & Editor Home)
+- 05-prisma.md (Prisma Schema & Database Client)
 
 ## In Progress
 
-- 04-project-dialogs.md (Project Dialogs & Editor Home)
+- None yet.
 
 ## Next Up
 
