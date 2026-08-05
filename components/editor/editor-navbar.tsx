@@ -14,7 +14,7 @@ interface EditorNavbarProps {
 export function EditorNavbar({
   isSidebarOpen,
   onToggleSidebar,
-  title = "ghost Al",
+  title = "Ghost AI",
 }: EditorNavbarProps) {
   return (
     <header className="flex h-14 w-full items-center justify-between border-b border-surface-border bg-surface px-4 z-30 shrink-0">

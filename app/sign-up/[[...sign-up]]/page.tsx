@@ -16,7 +16,7 @@ export default function SignUpPage() {
             <Sparkles className="h-5 w-5 text-brand" />
           </div>
           <span className="text-xl font-bold tracking-tight text-copy-primary">
-            ghost Al
+            Ghost AI
           </span>
         </div>
 
@@ -47,7 +47,7 @@ export default function SignUpPage() {
         </div>
 
         <div className="text-xs text-copy-faint">
-          © {new Date().getFullYear()} ghost Al. All rights reserved.
+          © {new Date().getFullYear()} Ghost AI. All rights reserved.
         </div>
       </div>
 
