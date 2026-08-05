@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Configure Prisma ORM schema with PostgreSQL models (Project, Collaborator, Spec, TaskRun) and export global client.
+- Finalize database data layer verification and proceed to Canvas Core & Node Components.
 
 ## Completed
 
@@ -20,7 +20,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## In Progress
 
-- None yet.
+- None.
 
 ## Next Up
 
@@ -28,12 +28,16 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Open Questions
 
-- Add unresolved product or implementation questions here.
+- None.
 
 ## Architecture Decisions
 
-- Add decisions that affect the system design or data model.
+- Created multi-file Prisma schema structure with `prisma/models/project.prisma` containing `Project` and `ProjectCollaborator` models.
+- Configured cached PrismaClient singleton in `lib/prisma.ts` with conditional branching for `prisma+postgres://` (Accelerate) vs `@prisma/adapter-pg`.
 
 ## Session Notes
 
-- Add context needed to resume work in the next session.
+- Completed implementation of `05-prisma.md`.
+- Models `Project` and `ProjectCollaborator` created with required relations, unique constraints, and indexes.
+- `lib/prisma.ts` implemented as global singleton.
+

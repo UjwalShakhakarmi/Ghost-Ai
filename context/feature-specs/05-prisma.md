@@ -1,24 +1,60 @@
-# Prisma Schema & Database Client
+# Prisma Schema And Data Layer
 
 ## Goal
 
-Set up Prisma ORM, define PostgreSQL models for relational metadata (Projects, Collaborators, Specs, Task Runs), and export a global Prisma client instance in `lib/db.ts`.
+Prisma is already installed. Add the project data models, Prisma client singleton, and first migration.
 
-## Implementation
+## Models
 
-1. Install `prisma` (dev dependency) and `@prisma/client`.
-2. Initialize `prisma/schema.prisma` configured for PostgreSQL data source.
-3. Define the core schema models:
-   - `Project` (id, name, slug, ownerId, canvasJsonPath, timestamps, relations)
-   - `Collaborator` (id, projectId, userId, role, timestamps)
-   - `Spec` (id, projectId, title, filePath, timestamps)
-   - `TaskRun` (id, projectId, runId, taskType, status, timestamps)
-4. Generate Prisma Client (`npx prisma generate`).
-5. Create `lib/db.ts` with a global singleton `db` instance to prevent multiple client connections in hot reloading.
+Create `prisma/models/project.prisma`.
+
+Add `Project`:
+
+- owner ID mapped to Clerk user
+- name
+- optional description
+- status enum: `DRAFT`, `ARCHIVED`
+- `canvasJsonPath` for future canvas blob storage
+- timestamps
+- indexes on owner ID and creation date
+
+Add `ProjectCollaborator`:
+
+- project relation with cascade delete
+- collaborator email
+- creation timestamp
+- unique constraint on project/email
+- indexes on email and project/date
+
+Do not add extra fields unless required by Prisma.
+
+## Prisma Client
+
+Create `lib/prisma.ts` as a cached singleton.
+
+Branch by `DATABASE_URL`:
+
+- if it starts with `prisma+postgres://`, use Accelerate
+- otherwise use direct `@prisma/adapter-pg`
+
+Cache the client on `global` in development for hot reloads.
+
+## Migration
+
+Run the migration and generate the client.
+
+## Dependencies
+
+Already installed:
+
+- `prisma`
+- `@prisma/client`
+- `@prisma/adapter-pg`
+- `pg`
 
 ## Check When Done
 
-- `prisma/schema.prisma` validates cleanly (`npx prisma validate`)
-- Prisma client generated without errors
-- `lib/db.ts` exports `db` singleton
+- schema has both models with correct relations and indexes
+- `lib/prisma.ts` exports one cached Prisma instance
+- migration runs successfully
 - `npm run build` passes
