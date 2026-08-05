@@ -7,6 +7,6 @@ export default async function HomePage() {
   if (userId) {
     redirect("/editor");
   } else {
-    redirect("/sign-in");
+    redirect(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/sign-in");
   }
 }

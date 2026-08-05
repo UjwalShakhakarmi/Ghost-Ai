@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Phase 3: Authentication & User Management
+- Phase 4: Project Dialogs & Editor Home
 
 ## Current Goal
 
-- Wire Clerk into Next.js app: provider, proxy, auth pages, redirects, route protection, and user menu.
+- Implement editor home, project dialogs (Create, Rename, Delete), slug preview, and sidebar project item actions.
 
 ## Completed
 
@@ -18,7 +18,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## In Progress
 
-- None yet.
+- 04-project-dialogs.md (Project Dialogs & Editor Home)
 
 ## Next Up
 
