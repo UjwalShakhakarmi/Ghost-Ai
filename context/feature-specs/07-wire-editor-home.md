@@ -16,12 +16,11 @@ Create a hook in `hooks/` that manages dialog state and project mutations.
 
 - manage create dialog state
 - manage project name input
-- generate a short unique suffix
-- slugify the name to create the room ID
+- generate a short unique suffix and slugify the name to render a cosmetic room ID preview only — this value is never sent to the server and never used as an identifier
 - call `POST /api/projects`
-- navigate to the new workspace
+- navigate to the new workspace using the project's Prisma `cuid` (`project.id`) returned by the API
 
-The project ID and Liveblocks room ID should stay aligned.
+The canonical Liveblocks room ID is the project's Prisma `cuid`. The project ID and Liveblocks room ID must be the exact same value everywhere (URL route segment, future Liveblocks room, and database record) — never a client-generated slug/suffix.
 
 **Rename**
 

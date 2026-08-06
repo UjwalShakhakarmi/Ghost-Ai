@@ -17,7 +17,7 @@ interface ProjectDialogsProps {
   activeDialog: "create" | "rename" | "delete" | null;
   targetProject: Project | null;
   projectName: string;
-  roomId: string;
+  roomIdPreview: string;
   isLoading: boolean;
   error?: string | null;
   onClose: () => void;
@@ -31,7 +31,7 @@ export function ProjectDialogs({
   activeDialog,
   targetProject,
   projectName,
-  roomId,
+  roomIdPreview,
   isLoading,
   error,
   onClose,
@@ -87,7 +87,7 @@ export function ProjectDialogs({
             <div className="rounded-xl border border-surface-border bg-subtle/50 p-3 text-xs">
               <span className="text-copy-muted">Room ID Preview: </span>
               <span className="font-mono text-brand font-medium">
-                {roomId ? roomId : "my-architecture-system-xxxxx"}
+                {roomIdPreview ? roomIdPreview : "my-architecture-system-xxxxx"}
               </span>
             </div>
 

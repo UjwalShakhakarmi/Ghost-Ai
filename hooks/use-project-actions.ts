@@ -43,7 +43,9 @@ export function useProjectActions({
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const roomId = projectName.trim()
+  // Cosmetic preview only — never sent to the server. The canonical Liveblocks
+  // room ID is always the Prisma cuid returned by POST /api/projects.
+  const roomIdPreview = projectName.trim()
     ? `${slugify(projectName)}-${roomSuffix}`
     : "";
 
@@ -148,7 +150,7 @@ export function useProjectActions({
     activeDialog,
     targetProject,
     projectName,
-    roomId,
+    roomIdPreview,
     isLoading,
     error,
     openCreateDialog,

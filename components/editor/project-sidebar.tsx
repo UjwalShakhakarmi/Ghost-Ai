@@ -1,18 +1,23 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Folder, Plus, Users, X, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { Project } from "@/hooks/use-project-actions";
 
+const DISPLAY_LOCALE = "en-US";
+const DISPLAY_TIME_ZONE = "UTC";
+
 function formatUpdatedAt(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString(DISPLAY_LOCALE, {
     month: "short",
     day: "numeric",
+    timeZone: DISPLAY_TIME_ZONE,
   });
 }
 
@@ -101,14 +106,17 @@ export function ProjectSidebar({
                     key={project.id}
                     className="group flex items-center justify-between rounded-xl border border-surface-border bg-subtle/50 p-3 hover:bg-subtle transition-colors"
                   >
-                    <div className="flex flex-col min-w-0 pr-2">
+                    <Link
+                      href={`/editor/${project.id}`}
+                      className="flex flex-col min-w-0 pr-2"
+                    >
                       <span className="truncate text-sm font-medium text-copy-primary">
                         {project.name}
                       </span>
                       <span className="text-xs text-copy-muted">
                         Updated {formatUpdatedAt(project.updatedAt)}
                       </span>
-                    </div>
+                    </Link>
 
                     {/* Actions: Show only for owned projects */}
                     <div className="flex items-center gap-1 opacity-90 group-hover:opacity-100 shrink-0">
@@ -157,14 +165,17 @@ export function ProjectSidebar({
                     key={project.id}
                     className="flex items-center justify-between rounded-xl border border-surface-border bg-subtle/50 p-3"
                   >
-                    <div className="flex flex-col min-w-0">
+                    <Link
+                      href={`/editor/${project.id}`}
+                      className="flex flex-col min-w-0"
+                    >
                       <span className="truncate text-sm font-medium text-copy-primary">
                         {project.name}
                       </span>
                       <span className="text-xs text-copy-muted">
                         Updated {formatUpdatedAt(project.updatedAt)}
                       </span>
-                    </div>
+                    </Link>
 
                     {/* Actions: HIDE for shared/collaborator projects */}
                     <span className="text-[10px] font-medium text-copy-faint bg-elevated px-2 py-0.5 rounded-md shrink-0">

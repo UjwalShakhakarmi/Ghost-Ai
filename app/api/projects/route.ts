@@ -17,7 +17,10 @@ export async function GET() {
     getSharedProjects(email),
   ]);
 
-  return NextResponse.json({ owned, shared });
+  return NextResponse.json(
+    { owned, shared },
+    { headers: { "Cache-Control": "no-store" } }
+  );
 }
 
 export async function POST(request: NextRequest) {

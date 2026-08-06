@@ -39,7 +39,7 @@ export function EditorWorkspace({
     activeDialog,
     targetProject,
     projectName,
-    roomId,
+    roomIdPreview,
     isLoading,
     error,
     openCreateDialog,
@@ -110,7 +110,7 @@ export function EditorWorkspace({
         activeDialog={activeDialog}
         targetProject={targetProject}
         projectName={projectName}
-        roomId={roomId}
+        roomIdPreview={roomIdPreview}
         isLoading={isLoading}
         error={error}
         onClose={closeDialog}
