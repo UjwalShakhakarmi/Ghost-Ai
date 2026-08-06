@@ -26,6 +26,7 @@ interface ProjectSidebarProps {
   onClose?: () => void;
   onNewProject?: () => void;
   projects?: Project[];
+  activeProjectId?: string | null;
   onRenameProject?: (project: Project) => void;
   onDeleteProject?: (project: Project) => void;
 }
@@ -35,6 +36,7 @@ export function ProjectSidebar({
   onClose,
   onNewProject,
   projects = [],
+  activeProjectId = null,
   onRenameProject,
   onDeleteProject,
 }: ProjectSidebarProps) {
@@ -104,7 +106,12 @@ export function ProjectSidebar({
                 ownedProjects.map((project) => (
                   <div
                     key={project.id}
-                    className="group flex items-center justify-between rounded-xl border border-surface-border bg-subtle/50 p-3 hover:bg-subtle transition-colors"
+                    className={cn(
+                      "group flex items-center justify-between rounded-xl border p-3 transition-colors",
+                      project.id === activeProjectId
+                        ? "border-brand bg-accent-dim"
+                        : "border-surface-border bg-subtle/50 hover:bg-subtle"
+                    )}
                   >
                     <Link
                       href={`/editor/${project.id}`}
@@ -163,7 +170,12 @@ export function ProjectSidebar({
                 sharedProjects.map((project) => (
                   <div
                     key={project.id}
-                    className="flex items-center justify-between rounded-xl border border-surface-border bg-subtle/50 p-3"
+                    className={cn(
+                      "flex items-center justify-between rounded-xl border p-3",
+                      project.id === activeProjectId
+                        ? "border-brand bg-accent-dim"
+                        : "border-surface-border bg-subtle/50"
+                    )}
                   >
                     <Link
                       href={`/editor/${project.id}`}

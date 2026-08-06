@@ -4,9 +4,10 @@ import * as React from "react";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectSidebar } from "@/components/editor/project-sidebar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { AiSidebar } from "@/components/editor/ai-sidebar";
+import { ShareDialog } from "@/components/editor/share-dialog";
 import { useProjectActions, Project } from "@/hooks/use-project-actions";
+import { useShareDialog } from "@/hooks/use-share-dialog";
 
 interface ProjectSummary {
   id: string;
@@ -14,16 +15,19 @@ interface ProjectSummary {
   updatedAt: string;
 }
 
-interface EditorWorkspaceProps {
+interface EditorWorkspaceShellProps {
+  project: { id: string; name: string; isOwner: boolean };
   ownedProjects: ProjectSummary[];
   sharedProjects: ProjectSummary[];
 }
 
-export function EditorWorkspace({
+export function EditorWorkspaceShell({
+  project,
   ownedProjects,
   sharedProjects,
-}: EditorWorkspaceProps) {
+}: EditorWorkspaceShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isAiSidebarOpen, setIsAiSidebarOpen] = React.useState(false);
 
   const projects: Project[] = React.useMemo(
     () => [
@@ -48,7 +52,25 @@ export function EditorWorkspace({
     handleCreateProject,
     handleRenameProject,
     handleDeleteProject,
-  } = useProjectActions();
+  } = useProjectActions({ activeProjectId: project.id });
+
+  const {
+    isOpen: isShareDialogOpen,
+    open: openShareDialog,
+    close: closeShareDialog,
+    projectLink,
+    collaborators,
+    isLoading: isLoadingCollaborators,
+    inviteEmail,
+    setInviteEmail,
+    isInviting,
+    removingEmail,
+    error: shareError,
+    isCopied,
+    inviteCollaborator,
+    removeCollaborator,
+    copyProjectLink,
+  } = useShareDialog({ projectId: project.id, isOwner: project.isOwner });
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-base text-copy-primary">
@@ -56,6 +78,10 @@ export function EditorWorkspace({
       <EditorNavbar
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+        projectName={project.name}
+        onShare={openShareDialog}
+        isAiSidebarOpen={isAiSidebarOpen}
+        onToggleAiSidebar={() => setIsAiSidebarOpen((prev) => !prev)}
       />
 
       {/* Main Workspace Area */}
@@ -66,28 +92,28 @@ export function EditorWorkspace({
           onClose={() => setIsSidebarOpen(false)}
           onNewProject={openCreateDialog}
           projects={projects}
+          activeProjectId={project.id}
           onRenameProject={openRenameDialog}
           onDeleteProject={openDeleteDialog}
         />
 
-        {/* Editor Home Center Area */}
+        {/* Canvas Placeholder */}
         <main className="flex flex-1 items-center justify-center bg-base p-6 text-center">
-          <div className="flex flex-col items-center gap-4 max-w-md">
-            <h1 className="text-2xl font-bold tracking-tight text-copy-primary">
-              Create a project or open an existing one
-            </h1>
-            <p className="text-sm text-copy-muted leading-relaxed">
-              Start a new architecture workspace, or choose a project from the sidebar.
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-sm font-medium text-copy-secondary">
+              Canvas coming soon
             </p>
-            <Button
-              onClick={openCreateDialog}
-              className="mt-2 flex items-center gap-2 rounded-xl bg-brand px-5 py-2.5 font-semibold text-bg-base hover:bg-brand/90"
-            >
-              <Plus className="h-4 w-4" />
-              <span>New Project</span>
-            </Button>
+            <p className="text-xs text-copy-muted">
+              The architecture canvas for &quot;{project.name}&quot; will appear here.
+            </p>
           </div>
         </main>
+
+        {/* Floating AI Sidebar Placeholder */}
+        <AiSidebar
+          isOpen={isAiSidebarOpen}
+          onClose={() => setIsAiSidebarOpen(false)}
+        />
       </div>
 
       {/* Project Dialogs (Create, Rename, Delete) */}
@@ -103,6 +129,26 @@ export function EditorWorkspace({
         onCreateProject={handleCreateProject}
         onRenameProject={handleRenameProject}
         onDeleteProject={handleDeleteProject}
+      />
+
+      {/* Share Dialog */}
+      <ShareDialog
+        isOpen={isShareDialogOpen}
+        isOwner={project.isOwner}
+        projectName={project.name}
+        projectLink={projectLink}
+        collaborators={collaborators}
+        isLoading={isLoadingCollaborators}
+        inviteEmail={inviteEmail}
+        isInviting={isInviting}
+        removingEmail={removingEmail}
+        error={shareError}
+        isCopied={isCopied}
+        onClose={closeShareDialog}
+        onInviteEmailChange={setInviteEmail}
+        onInvite={inviteCollaborator}
+        onRemove={removeCollaborator}
+        onCopyLink={copyProjectLink}
       />
     </div>
   );
