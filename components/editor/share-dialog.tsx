@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Image from "next/image";
 import { Check, Copy, Loader2, Users, X } from "lucide-react";
 import {

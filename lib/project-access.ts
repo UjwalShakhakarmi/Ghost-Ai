@@ -5,6 +5,8 @@ import type { Project } from "@prisma/client";
 export interface ClerkIdentity {
   userId: string;
   email: string;
+  name: string;
+  avatarUrl: string;
 }
 
 export async function getCurrentIdentity(): Promise<ClerkIdentity | null> {
@@ -14,8 +16,13 @@ export async function getCurrentIdentity(): Promise<ClerkIdentity | null> {
 
   const user = await currentUser();
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const name =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim() ||
+    email ||
+    "Anonymous";
+  const avatarUrl = user?.imageUrl ?? "";
 
-  return { userId, email };
+  return { userId, email, name, avatarUrl };
 }
 
 export async function hasProjectAccess(

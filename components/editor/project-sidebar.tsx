@@ -56,8 +56,8 @@ export function ProjectSidebar({
 
       <aside
         className={cn(
-          "fixed left-0 top-14 bottom-0 z-40 w-80 flex-col border-r border-surface-border bg-surface shadow-2xl transition-transform duration-300 ease-in-out flex",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed left-0 top-14 bottom-0 z-40 w-80 flex-col border-r border-surface-border bg-surface transition-transform duration-300 ease-in-out flex",
+          isOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
         )}
       >
         {/* Header with Projects title + close button */}

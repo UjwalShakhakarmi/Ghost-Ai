@@ -5,6 +5,7 @@ import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectSidebar } from "@/components/editor/project-sidebar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
 import { AiSidebar } from "@/components/editor/ai-sidebar";
+import { Canvas } from "@/components/editor/canvas";
 import { ShareDialog } from "@/components/editor/share-dialog";
 import { useProjectActions, Project } from "@/hooks/use-project-actions";
 import { useShareDialog } from "@/hooks/use-share-dialog";
@@ -97,16 +98,9 @@ export function EditorWorkspaceShell({
           onDeleteProject={openDeleteDialog}
         />
 
-        {/* Canvas Placeholder */}
-        <main className="flex flex-1 items-center justify-center bg-base p-6 text-center">
-          <div className="flex flex-col items-center gap-2">
-            <p className="text-sm font-medium text-copy-secondary">
-              Canvas coming soon
-            </p>
-            <p className="text-xs text-copy-muted">
-              The architecture canvas for &quot;{project.name}&quot; will appear here.
-            </p>
-          </div>
+        {/* Collaborative Canvas */}
+        <main className="relative flex flex-1 overflow-hidden bg-base">
+          <Canvas roomId={project.id} />
         </main>
 
         {/* Floating AI Sidebar Placeholder */}
