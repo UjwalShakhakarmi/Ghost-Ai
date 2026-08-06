@@ -5,7 +5,16 @@ import { Folder, Plus, Users, X, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { Project } from "@/hooks/use-project-dialogs";
+import { Project } from "@/hooks/use-project-actions";
+
+function formatUpdatedAt(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
 
 interface ProjectSidebarProps {
   isOpen: boolean;
@@ -96,8 +105,8 @@ export function ProjectSidebar({
                       <span className="truncate text-sm font-medium text-copy-primary">
                         {project.name}
                       </span>
-                      <span className="text-xs text-copy-muted font-mono">
-                        {project.slug}
+                      <span className="text-xs text-copy-muted">
+                        Updated {formatUpdatedAt(project.updatedAt)}
                       </span>
                     </div>
 
@@ -152,8 +161,8 @@ export function ProjectSidebar({
                       <span className="truncate text-sm font-medium text-copy-primary">
                         {project.name}
                       </span>
-                      <span className="text-xs text-copy-muted font-mono">
-                        {project.slug}
+                      <span className="text-xs text-copy-muted">
+                        Updated {formatUpdatedAt(project.updatedAt)}
                       </span>
                     </div>
 

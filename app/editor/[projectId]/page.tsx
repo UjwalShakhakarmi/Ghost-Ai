@@ -8,13 +8,20 @@ export const metadata: Metadata = {
   title: "Ghost AI - Editor",
 };
 
-export default async function EditorPage() {
+interface EditorProjectPageProps {
+  params: Promise<{ projectId: string }>;
+}
+
+export default async function EditorProjectPage({
+  params,
+}: EditorProjectPageProps) {
   const { userId } = await auth();
 
   if (!userId) {
     redirect(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL || "/sign-in");
   }
 
+  const { projectId } = await params;
   const user = await currentUser();
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
 
@@ -35,6 +42,7 @@ export default async function EditorPage() {
         name: p.name,
         updatedAt: p.updatedAt.toISOString(),
       }))}
+      activeProjectId={projectId}
     />
   );
 }

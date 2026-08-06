@@ -11,14 +11,15 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Project } from "@/hooks/use-project-dialogs";
+import { Project } from "@/hooks/use-project-actions";
 
 interface ProjectDialogsProps {
   activeDialog: "create" | "rename" | "delete" | null;
   targetProject: Project | null;
   projectName: string;
-  slug: string;
+  roomId: string;
   isLoading: boolean;
+  error?: string | null;
   onClose: () => void;
   onProjectNameChange: (name: string) => void;
   onCreateProject: () => void;
@@ -30,8 +31,9 @@ export function ProjectDialogs({
   activeDialog,
   targetProject,
   projectName,
-  slug,
+  roomId,
   isLoading,
+  error,
   onClose,
   onProjectNameChange,
   onCreateProject,
@@ -81,13 +83,17 @@ export function ProjectDialogs({
               />
             </div>
 
-            {/* Live Slug Preview */}
+            {/* Live Room ID Preview */}
             <div className="rounded-xl border border-surface-border bg-subtle/50 p-3 text-xs">
-              <span className="text-copy-muted">Slug Preview: </span>
+              <span className="text-copy-muted">Room ID Preview: </span>
               <span className="font-mono text-brand font-medium">
-                {slug ? slug : "my-architecture-system"}
+                {roomId ? roomId : "my-architecture-system-xxxxx"}
               </span>
             </div>
+
+            {error && (
+              <p className="text-xs text-state-error">{error}</p>
+            )}
 
             <DialogFooter className="flex gap-2 sm:justify-end pt-2">
               <Button
@@ -146,6 +152,10 @@ export function ProjectDialogs({
               />
             </div>
 
+            {error && (
+              <p className="text-xs text-state-error">{error}</p>
+            )}
+
             <DialogFooter className="flex gap-2 sm:justify-end pt-2">
               <Button
                 type="button"
@@ -178,6 +188,10 @@ export function ProjectDialogs({
               Are you sure you want to delete &quot;<span className="font-semibold text-copy-primary">{targetProject?.name}</span>&quot;? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
+
+          {error && (
+            <p className="text-xs text-state-error">{error}</p>
+          )}
 
           <DialogFooter className="flex gap-2 sm:justify-end pt-4">
             <Button
