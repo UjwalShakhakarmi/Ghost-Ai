@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Phase 12: Bottom Shape Panel & Drag-to-Create Nodes (+ canvas/sidebar visual bug-fix pass)
+- Phase 18: Starter Architecture Templates
 
 ## Current Goal
 
-- Manually verify in a real browser: (a) the canvas now sits flush with the app background with no floating/card look, (b) both sidebars leave zero visible trace when closed, and (c) dragging each of the 6 shapes from the bottom panel onto the canvas creates a node at the drop position. Then move on to shape-specific node visuals and canvas persistence.
+- Implement starter templates library (Microservices, CI/CD Pipeline, Event-Driven System) with SVG diagram previews and an import modal that replaces canvas state.
 
 ## Completed
 
@@ -24,6 +24,12 @@ Update this file whenever the current phase, active feature, or implementation s
 - 10-liveblocks-setup.md (Liveblocks Realtime Infrastructure)
 - 11-base-canvas.md (Base Liveblocks-Backed React Flow Canvas)
 - 12-shape-panel.md (Bottom Shape Panel & Drag-to-Create Nodes)
+- 13-node-shape.md (Node Shape Rendering & Drag Preview)
+- 14-node-editing.md (Node Resizing & Inline Label Editing)
+- 15-node-color-toolbar.md (Floating Node Color Toolbar)
+- 16-edge-behavior.md (Custom Edge Behavior & Inline Edge Labels)
+- 17-canvas-ergonomics.md (Canvas Ergonomics & Keyboard Shortcuts)
+- 18-starter-templates.md (Starter Architecture Templates & SVG Previews)
 
 ## In Progress
 
@@ -31,7 +37,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Shape-specific node visuals (actual rectangle/diamond/circle/pill/cylinder/hexagon rendering, replacing the current plain bordered-rectangle placeholder for every shape) and canvas persistence (canvas snapshots to Vercel Blob)
+- Canvas persistence (canvas snapshots to Vercel Blob / filesystem) and AI architecture generation.
 
 ## Open Questions
 

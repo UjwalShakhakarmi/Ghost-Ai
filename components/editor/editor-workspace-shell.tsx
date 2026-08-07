@@ -7,6 +7,8 @@ import { ProjectDialogs } from "@/components/editor/project-dialogs";
 import { AiSidebar } from "@/components/editor/ai-sidebar";
 import { Canvas } from "@/components/editor/canvas";
 import { ShareDialog } from "@/components/editor/share-dialog";
+import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal";
+import type { CanvasTemplate } from "@/components/editor/starter-templates";
 import { useProjectActions, Project } from "@/hooks/use-project-actions";
 import { useShareDialog } from "@/hooks/use-share-dialog";
 
@@ -29,6 +31,7 @@ export function EditorWorkspaceShell({
 }: EditorWorkspaceShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isAiSidebarOpen, setIsAiSidebarOpen] = React.useState(false);
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = React.useState(false);
 
   const projects: Project[] = React.useMemo(
     () => [
@@ -37,6 +40,11 @@ export function EditorWorkspaceShell({
     ],
     [ownedProjects, sharedProjects]
   );
+
+  const handleSelectTemplate = React.useCallback((template: CanvasTemplate) => {
+    window.dispatchEvent(new CustomEvent("canvas:import-template", { detail: template }));
+    setIsTemplatesModalOpen(false);
+  }, []);
 
   const {
     activeDialog,
@@ -80,6 +88,7 @@ export function EditorWorkspaceShell({
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
         projectName={project.name}
+        onOpenTemplates={() => setIsTemplatesModalOpen(true)}
         onShare={openShareDialog}
         isAiSidebarOpen={isAiSidebarOpen}
         onToggleAiSidebar={() => setIsAiSidebarOpen((prev) => !prev)}
@@ -143,6 +152,13 @@ export function EditorWorkspaceShell({
         onInvite={inviteCollaborator}
         onRemove={removeCollaborator}
         onCopyLink={copyProjectLink}
+      />
+
+      {/* Starter Templates Modal */}
+      <StarterTemplatesModal
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
+        onSelectTemplate={handleSelectTemplate}
       />
     </div>
   );

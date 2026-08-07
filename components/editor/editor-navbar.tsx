@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { PanelLeftClose, PanelLeftOpen, Share2, Sparkles } from "lucide-react";
+import { LayoutTemplate, PanelLeftClose, PanelLeftOpen, Share2, Sparkles } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ interface EditorNavbarProps {
   title?: string;
   projectName?: string;
   onShare?: () => void;
+  onOpenTemplates?: () => void;
   isAiSidebarOpen?: boolean;
   onToggleAiSidebar?: () => void;
 }
@@ -22,6 +23,7 @@ export function EditorNavbar({
   title = "Ghost AI",
   projectName,
   onShare,
+  onOpenTemplates,
   isAiSidebarOpen,
   onToggleAiSidebar,
 }: EditorNavbarProps) {
@@ -61,6 +63,17 @@ export function EditorNavbar({
 
       {/* Right section: workspace actions + Clerk UserButton */}
       <div className="flex items-center justify-end gap-2 min-w-[200px]">
+        {onOpenTemplates && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onOpenTemplates}
+            className="gap-1.5 rounded-xl border-surface-border bg-subtle text-copy-primary hover:bg-elevated"
+          >
+            <LayoutTemplate className="h-4 w-4 text-brand" />
+            <span>Templates</span>
+          </Button>
+        )}
         {onShare && (
           <Button
             variant="outline"
