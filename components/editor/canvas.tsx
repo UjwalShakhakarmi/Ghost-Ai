@@ -4,9 +4,11 @@ import { LiveblocksProvider, RoomProvider, ClientSideSuspense } from "@liveblock
 import { ErrorBoundary } from "react-error-boundary";
 import { AlertTriangle, Loader2 } from "lucide-react";
 import { CanvasFlow } from "@/components/editor/canvas-flow";
+import type { CanvasSaveStatus } from "@/hooks/use-canvas-autosave";
 
 interface CanvasProps {
   roomId: string;
+  onSaveStatusChange?: (status: CanvasSaveStatus) => void;
 }
 
 function CanvasLoading() {
@@ -32,13 +34,13 @@ function CanvasError() {
   );
 }
 
-export function Canvas({ roomId }: CanvasProps) {
+export function Canvas({ roomId, onSaveStatusChange }: CanvasProps) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-      <RoomProvider id={roomId} initialPresence={{ cursor: null, isThinking: false }}>
+      <RoomProvider id={roomId} initialPresence={{ cursor: null, thinking: false }}>
         <ErrorBoundary fallback={<CanvasError />}>
           <ClientSideSuspense fallback={<CanvasLoading />}>
-            <CanvasFlow />
+            <CanvasFlow onSaveStatusChange={onSaveStatusChange} />
           </ClientSideSuspense>
         </ErrorBoundary>
       </RoomProvider>

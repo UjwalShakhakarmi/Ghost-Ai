@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Trigger.dev's local build cache (generated, already in .gitignore).
+    ".trigger/**",
   ]),
 ]);
 

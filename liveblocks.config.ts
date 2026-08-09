@@ -5,7 +5,7 @@ declare global {
     // Each user's Presence, for useMyPresence, useOthers, etc.
     Presence: {
       cursor: { x: number; y: number } | null;
-      isThinking: boolean;
+      thinking: boolean;
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
@@ -22,10 +22,11 @@ declare global {
     };
 
     // Custom events, for useBroadcastEvent, useEventListener
-    RoomEvent: Record<string, never>;
-    // Example has two events, using a union
-    // | { type: "PLAY" }
-    // | { type: "REACTION"; emoji: "🔥" };
+    RoomEvent: {
+      type: "ai-status";
+      status: "start" | "processing" | "complete" | "error";
+      message: string;
+    };
 
     // Custom metadata set on threads, for useThreads, useCreateThread, etc.
     ThreadMetadata: Record<string, never>;

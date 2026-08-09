@@ -11,6 +11,7 @@ import { StarterTemplatesModal } from "@/components/editor/starter-templates-mod
 import type { CanvasTemplate } from "@/components/editor/starter-templates";
 import { useProjectActions, Project } from "@/hooks/use-project-actions";
 import { useShareDialog } from "@/hooks/use-share-dialog";
+import type { CanvasSaveStatus } from "@/hooks/use-canvas-autosave";
 
 interface ProjectSummary {
   id: string;
@@ -32,6 +33,7 @@ export function EditorWorkspaceShell({
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   const [isAiSidebarOpen, setIsAiSidebarOpen] = React.useState(false);
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = React.useState(false);
+  const [saveStatus, setSaveStatus] = React.useState<CanvasSaveStatus>("idle");
 
   const projects: Project[] = React.useMemo(
     () => [
@@ -88,10 +90,12 @@ export function EditorWorkspaceShell({
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
         projectName={project.name}
+        saveStatus={saveStatus}
         onOpenTemplates={() => setIsTemplatesModalOpen(true)}
         onShare={openShareDialog}
         isAiSidebarOpen={isAiSidebarOpen}
         onToggleAiSidebar={() => setIsAiSidebarOpen((prev) => !prev)}
+        showUserButton={false}
       />
 
       {/* Main Workspace Area */}
@@ -109,7 +113,7 @@ export function EditorWorkspaceShell({
 
         {/* Collaborative Canvas */}
         <main className="relative flex flex-1 overflow-hidden bg-base">
-          <Canvas roomId={project.id} />
+          <Canvas roomId={project.id} onSaveStatusChange={setSaveStatus} />
         </main>
 
         {/* Floating AI Sidebar Placeholder */}

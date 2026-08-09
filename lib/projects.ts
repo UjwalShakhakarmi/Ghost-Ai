@@ -42,3 +42,10 @@ export function renameProject(id: string, name: string): Promise<Project> {
 export function deleteProject(id: string): Promise<Project> {
   return prisma.project.delete({ where: { id } });
 }
+
+export function updateCanvasJsonPath(id: string, canvasJsonPath: string): Promise<Project> {
+  return prisma.project.update({
+    where: { id },
+    data: { canvasJsonPath },
+  });
+}

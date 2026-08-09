@@ -107,6 +107,9 @@ function minDimensionsForShape(shape: NodeShape): { minWidth: number; minHeight:
   }
 }
 
+const CONNECTION_HANDLE_CLASSNAME =
+  "!w-2.5 !h-2.5 !bg-white !border-2 !border-[#18181c] opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 !z-40";
+
 function ConnectionHandles({ isConnectable }: { isConnectable?: boolean }) {
   return (
     <>
@@ -115,28 +118,36 @@ function ConnectionHandles({ isConnectable }: { isConnectable?: boolean }) {
         position={Position.Top}
         id="top"
         isConnectable={isConnectable}
-        className="!w-2.5 !h-2.5 !bg-white !border-2 !border-[#18181c] opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 !z-20"
+        isConnectableStart
+        isConnectableEnd
+        className={CONNECTION_HANDLE_CLASSNAME}
       />
       <Handle
         type="source"
         position={Position.Right}
         id="right"
         isConnectable={isConnectable}
-        className="!w-2.5 !h-2.5 !bg-white !border-2 !border-[#18181c] opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 !z-20"
+        isConnectableStart
+        isConnectableEnd
+        className={CONNECTION_HANDLE_CLASSNAME}
       />
       <Handle
         type="source"
         position={Position.Bottom}
         id="bottom"
         isConnectable={isConnectable}
-        className="!w-2.5 !h-2.5 !bg-white !border-2 !border-[#18181c] opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 !z-20"
+        isConnectableStart
+        isConnectableEnd
+        className={CONNECTION_HANDLE_CLASSNAME}
       />
       <Handle
         type="source"
         position={Position.Left}
         id="left"
         isConnectable={isConnectable}
-        className="!w-2.5 !h-2.5 !bg-white !border-2 !border-[#18181c] opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-150 !z-20"
+        isConnectableStart
+        isConnectableEnd
+        className={CONNECTION_HANDLE_CLASSNAME}
       />
     </>
   );
