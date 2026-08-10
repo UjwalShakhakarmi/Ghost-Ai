@@ -4,9 +4,10 @@ import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { LiveObject, LiveMap } from "@liveblocks/node";
-import { getLiveblocksClient } from "@/lib/liveblocks";
+import { ensureFeedExists, getLiveblocksClient } from "@/lib/liveblocks";
 import { NODE_COLORS, NODE_SHAPES, DEFAULT_NODE_COLOR } from "@/types/canvas";
 import type { NodeShape } from "@/types/canvas";
+import { AI_STATUS_FEED_ID, type AiStatus } from "@/types/tasks";
 
 export interface DesignAgentPayload {
   prompt: string;
@@ -59,15 +60,21 @@ const designActionSchema = z.object({
     .string()
     .max(60)
     .optional()
-    .describe("Node label text. Used by addNode, updateNodeData."),
+    .describe(
+      "Node label text (2-4 words, e.g. 'API Gateway', 'User Auth Service', 'Product Catalog', 'Redis Cache', 'NoSQL DB', 'Order Queue'). REQUIRED for addNode.",
+    ),
   shape: z
     .enum(SHAPE_VALUES)
     .optional()
-    .describe("Node shape. Used by addNode."),
+    .describe(
+      "Node shape: pill (gateways/services), rectangle (workers/services), cylinder (databases/caches), hexagon (queues/brokers), diamond (auth/decisions). Used by addNode.",
+    ),
   color: z
     .enum(COLOR_VALUES)
     .optional()
-    .describe("Node fill color hex. Used by addNode, updateNodeData."),
+    .describe(
+      "Node fill color hex. Use distinct colors for different roles: #10233D (blue for Gateway), #2E1938 (purple for Auth), #062822 (teal for Cache), #331B00 (orange for Database), #3A1726 (pink for Queues), #0F2E18 (green for Processing). Used by addNode, updateNodeData.",
+    ),
   x: z
     .number()
     .min(-2000)
@@ -111,7 +118,9 @@ const designActionSchema = z.object({
     .string()
     .max(60)
     .optional()
-    .describe("Edge label text. Used by addEdge."),
+    .describe(
+      "Edge label text describing data flow or protocol (e.g., 'HTTPS / Auth', 'Read / Write', 'Cache Lookup', 'Publish Event', 'Consume Queue'). Used by addEdge.",
+    ),
 });
 
 const designPlanSchema = z.object({
@@ -207,9 +216,24 @@ Rules:
 - Only use these action types: addNode, moveNode, resizeNode, updateNodeData, deleteNode, addEdge, deleteEdge.
 - Only use these node shapes: ${NODE_SHAPES.join(", ")}.
 - Only use these node fill colors (hex): ${NODE_COLORS.map((c) => c.fill).join(", ")}.
-- For addNode, invent a short, readable, kebab-case nodeId (e.g. "api-gateway", "user-db") unique among your new nodes.
+- For addNode, invent a short, readable, kebab-case nodeId (e.g. "api-gateway", "user-db", "redis-cache") unique among your new nodes.
+- **CRITICAL**: Every addNode MUST include a descriptive "label" field (2-4 words, e.g. "API Gateway", "User Auth Service", "Product Catalog", "Redis Cache", "MongoDB NoSQL DB", "Order Queue"). NEVER leave label empty or omitted.
+- Choose intuitive shapes:
+  * "pill": API Gateways, Routers, and Primary Entry Points
+  * "diamond": Auth checks, Decisions, or Security Firewalls
+  * "rectangle": Microservices, Processing Workers, and Core Logic
+  * "cylinder": Databases (NoSQL, SQL) and Storage
+  * "circle": In-memory Caches (Redis, Memcached)
+  * "hexagon": Message Queues (Kafka, RabbitMQ) and External Systems
+- Assign meaningful color coding:
+  * #10233D (Blue): API Gateway / Routing
+  * #2E1938 (Purple): Auth / Security
+  * #062822 (Teal): Cache (Redis)
+  * #331B00 (Orange): Database / Storage
+  * #3A1726 (Pink): Message Queue / Event Bus
+  * #0F2E18 (Green): Processing Service / Backend Logic
+- Add concise "edgeLabel" on addEdge actions describing the data flow (e.g. "HTTPS / Auth", "Cache Lookup", "Read/Write", "Publish Event", "Consume Queue").
 - Lay nodes out left-to-right or top-to-bottom by data flow. Space sibling nodes at least 220px apart horizontally and 150px apart vertically. Start near (80, 80) and flow outward — never stack nodes on top of each other.
-- Give every new node a short, clear label (2-4 words) describing its role.
 - Keep the design focused and proportional to the request — do not add unrelated components.
 - Provide a one-sentence "summary" of what you generated or changed, written for a status message shown to the user.
 
@@ -223,6 +247,39 @@ let idCounter = 0;
 function generateId(prefix: string): string {
   idCounter += 1;
   return `${prefix}-${Date.now()}-${idCounter}`;
+}
+
+const ACRONYMS: Record<string, string> = {
+  api: "API",
+  db: "DB",
+  nosql: "NoSQL",
+  sql: "SQL",
+  auth: "Auth",
+  ui: "UI",
+  url: "URL",
+  http: "HTTP",
+  https: "HTTPS",
+  grpc: "gRPC",
+  kafka: "Kafka",
+  redis: "Redis",
+  mq: "MQ",
+  cpu: "CPU",
+  gpu: "GPU",
+  id: "ID",
+  ip: "IP",
+};
+
+function formatFallbackLabel(nodeId: string): string {
+  if (!nodeId) return "Service Node";
+  return nodeId
+    .split(/[-_]/)
+    .filter(Boolean)
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (ACRONYMS[lower]) return ACRONYMS[lower];
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(" ");
 }
 
 function applyDesignActions(
@@ -258,6 +315,12 @@ function applyDesignActions(
         const realId = generateId(shape);
         idMap.set(action.nodeId, realId);
 
+        // Compute label: if action.label is provided, use it; otherwise format action.nodeId into a human readable label
+        let label = action.label?.trim() ?? "";
+        if (!label) {
+          label = formatFallbackLabel(action.nodeId);
+        }
+
         nodesMap.set(
           realId,
           new LiveObject<FlowNode>({
@@ -267,7 +330,7 @@ function applyDesignActions(
             width: action.width ?? defaultSize.width,
             height: action.height ?? defaultSize.height,
             data: new LiveObject<FlowNodeData>({
-              label: action.label ?? "",
+              label,
               color,
               shape,
             }),
@@ -299,7 +362,9 @@ function applyDesignActions(
         if (!node) break;
         const data = node.get("data");
         if (!data) break;
-        if (action.label !== undefined) data.set("label", action.label);
+        if (action.label !== undefined && action.label.trim().length > 0) {
+          data.set("label", action.label.trim());
+        }
         if (action.color && COLOR_VALUES.includes(action.color))
           data.set("color", action.color);
         break;
@@ -320,6 +385,7 @@ function applyDesignActions(
         const targetId = resolveNodeId(action.target);
         if (!sourceId || !targetId) break;
         const realEdgeId = generateId("edge");
+        const edgeLabel = action.edgeLabel?.trim();
         edgesMap.set(
           realEdgeId,
           new LiveObject<FlowEdge>({
@@ -328,7 +394,7 @@ function applyDesignActions(
             source: sourceId,
             target: targetId,
             data: new LiveObject<FlowEdgeData>(
-              action.edgeLabel ? { label: action.edgeLabel } : {},
+              edgeLabel ? { label: edgeLabel } : {},
             ),
           }),
         );
@@ -350,12 +416,17 @@ const GENERATION_ATTEMPT_TIMEOUT_MS = 90_000;
 // Candidate Google Gemini models to try in order. If GEMINI_MODEL is set in .env.local, it is prioritized.
 const CANDIDATE_MODELS = process.env.GEMINI_MODEL
   ? [process.env.GEMINI_MODEL]
-  : ["gemini-2.0-flash"];
+  : ["gemini-2.0-flash", "gemini-1.5-flash"];
 
 const OPENROUTER_FREE_MODELS =
   process.env.OPENROUTER_MODEL || process.env.GEMINI_MODEL
     ? [process.env.OPENROUTER_MODEL || process.env.GEMINI_MODEL!]
-    : ["nvidia/nemotron-3-ultra-550b-a55b:free"];
+    : [
+        "google/gemini-2.0-flash-001",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "deepseek/deepseek-r1:free",
+        "nvidia/nemotron-3-ultra-550b-a55b:free",
+      ];
 
 /**
  * Generates the design plan via OpenRouter or Google AI Studio based on configured keys.
@@ -473,21 +544,19 @@ export const designAgentTask = task({
       });
     }
 
-    async function broadcastStatus(
-      status: "start" | "processing" | "complete" | "error",
-      message: string,
-    ) {
-      await liveblocks.broadcastEvent(roomId, {
-        type: "ai-status",
-        status,
-        message,
+    async function postStatus(status: AiStatus, text: string) {
+      await liveblocks.createFeedMessage({
+        roomId,
+        feedId: AI_STATUS_FEED_ID,
+        data: { status, text },
       });
     }
 
     try {
+      await ensureFeedExists(liveblocks, roomId, AI_STATUS_FEED_ID);
       logger.log("Design agent starting", { prompt, roomId });
       await setAiPresence(true);
-      await broadcastStatus("start", "Ghost AI is reading your request…");
+      await postStatus("start", "Ghost AI is reading your request…");
 
       const existing = (await liveblocks.getStorageDocument(
         roomId,
@@ -496,7 +565,7 @@ export const designAgentTask = task({
       const existingNodes = Object.values(existing.flow?.nodes ?? {});
       const existingEdges = Object.values(existing.flow?.edges ?? {});
 
-      await broadcastStatus(
+      await postStatus(
         "processing",
         "Ghost AI is designing the architecture…",
       );
@@ -520,14 +589,14 @@ export const designAgentTask = task({
         );
       });
 
-      await broadcastStatus("complete", plan.summary);
+      await postStatus("complete", plan.summary);
 
       return { summary: plan.summary, actionsApplied: plan.actions.length };
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Design generation failed.";
       logger.error("Design agent failed", { error: message });
-      await broadcastStatus(
+      await postStatus(
         "error",
         "Ghost AI couldn't finish that design. Please try again.",
       );

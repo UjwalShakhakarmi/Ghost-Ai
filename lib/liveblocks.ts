@@ -35,6 +35,21 @@ const CURSOR_COLORS = [
   "#FF8A65",
 ];
 
+// Feeds have no server-side "get or create" convenience (unlike
+// getOrCreateRoom), so this checks first and swallows a racing/duplicate
+// create — safe to call on every task run.
+export async function ensureFeedExists(
+  liveblocks: Liveblocks,
+  roomId: string,
+  feedId: string
+): Promise<void> {
+  try {
+    await liveblocks.getFeed({ roomId, feedId });
+  } catch {
+    await liveblocks.createFeed({ roomId, feedId }).catch(() => {});
+  }
+}
+
 export function getCursorColorForUser(userId: string): string {
   let hash = 0;
 

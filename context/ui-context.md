@@ -22,6 +22,7 @@ All colors are defined as CSS custom properties in `globals.css` and mapped to T
 | Brand dim        | `--accent-primary-dim` | `rgba(0, 200, 212, 0.12)` |
 | AI accent        | `--accent-ai`          | `#6457f9` (indigo-purple) |
 | AI text          | `--accent-ai-text`     | `#8b82ff`                 |
+| Chat accent      | `--accent-chat`        | `#62c073` (green, same as the canvas "Green" node color) |
 | Error            | `--state-error`        | `#ff4d4f`                 |
 | Success          | `--state-success`      | `#34d399`                 |
 | Warning          | `--state-warning`      | `#fbbf24`                 |

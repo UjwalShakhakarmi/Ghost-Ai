@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { LiveblocksProvider, RoomProvider, ClientSideSuspense } from "@liveblocks/react/suspense";
 import { ErrorBoundary } from "react-error-boundary";
 import { AlertTriangle, Loader2 } from "lucide-react";
@@ -9,6 +10,7 @@ import type { CanvasSaveStatus } from "@/hooks/use-canvas-autosave";
 interface CanvasProps {
   roomId: string;
   onSaveStatusChange?: (status: CanvasSaveStatus) => void;
+  children?: ReactNode;
 }
 
 function CanvasLoading() {
@@ -34,7 +36,7 @@ function CanvasError() {
   );
 }
 
-export function Canvas({ roomId, onSaveStatusChange }: CanvasProps) {
+export function Canvas({ roomId, onSaveStatusChange, children }: CanvasProps) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
       <RoomProvider id={roomId} initialPresence={{ cursor: null, thinking: false }}>
@@ -43,6 +45,7 @@ export function Canvas({ roomId, onSaveStatusChange }: CanvasProps) {
             <CanvasFlow onSaveStatusChange={onSaveStatusChange} />
           </ClientSideSuspense>
         </ErrorBoundary>
+        {children}
       </RoomProvider>
     </LiveblocksProvider>
   );

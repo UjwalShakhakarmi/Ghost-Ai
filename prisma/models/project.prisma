@@ -13,6 +13,7 @@ model Project {
   createdAt      DateTime              @default(now())
   updatedAt      DateTime              @updatedAt
   collaborators  ProjectCollaborator[]
+  specs          ProjectSpec[]
 
   @@index([ownerId])
   @@index([createdAt])
@@ -27,5 +28,16 @@ model ProjectCollaborator {
 
   @@unique([projectId, email])
   @@index([email])
+  @@index([projectId, createdAt])
+}
+
+model ProjectSpec {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String?
+  filePath  String
+  createdAt DateTime @default(now())
+
   @@index([projectId, createdAt])
 }

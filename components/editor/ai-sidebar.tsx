@@ -2,10 +2,15 @@
 
 import * as React from "react";
 import { Bot, X } from "lucide-react";
+import { useRoom } from "@liveblocks/react";
+import { useRealtimeRun } from "@trigger.dev/react-hooks";
+import type { designAgentTask } from "@/src/trigger/design-agent";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AiArchitectTab, type ChatMessage } from "@/components/editor/ai-architect-tab";
+import { AiArchitectTab } from "@/components/editor/ai-architect-tab";
 import { AiSpecsTab } from "@/components/editor/ai-specs-tab";
+import { useAiStatusFeed } from "@/hooks/use-ai-status-feed";
+import { useAiChatFeed } from "@/hooks/use-ai-chat-feed";
 import { cn } from "@/lib/utils";
 
 interface AiSidebarProps {
@@ -13,32 +18,99 @@ interface AiSidebarProps {
   onClose?: () => void;
 }
 
-let messageIdCounter = 0;
+const AI_SENDER_NAME = "Ghost AI";
 
-function generateMessageId(): string {
-  messageIdCounter += 1;
-  return `msg-${Date.now()}-${messageIdCounter}`;
+interface ActiveRun {
+  runId: string;
+  token: string;
 }
 
 export function AiSidebar({ isOpen, onClose }: AiSidebarProps) {
-  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [input, setInput] = React.useState("");
+  const [activeRun, setActiveRun] = React.useState<ActiveRun | null>(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const handledRunIdRef = React.useRef<string | null>(null);
 
-  const handleSend = React.useCallback(() => {
+  const roomId = useRoom().id;
+  const { latestMessage, isGenerating } = useAiStatusFeed();
+  const { messages, sendMessage, isSending, sendError } = useAiChatFeed();
+
+  const { run } = useRealtimeRun<typeof designAgentTask>(activeRun?.runId, {
+    accessToken: activeRun?.token,
+    enabled: Boolean(activeRun),
+  });
+
+  // When the tracked run finishes (success or failure), post one final
+  // message to ai-chat and clear local run state — guarded by a ref since
+  // `run` keeps updating (new object identity) after isCompleted flips true.
+  React.useEffect(() => {
+    if (!run || !run.isCompleted) return;
+    if (handledRunIdRef.current === run.id) return;
+    handledRunIdRef.current = run.id;
+
+    if (run.isSuccess) {
+      const summary =
+        (run.output && typeof run.output.summary === "string" && run.output.summary) ||
+        "Design generation complete.";
+      void sendMessage(summary, { role: "assistant", sender: AI_SENDER_NAME });
+    } else {
+      const errorMessage =
+        run.error?.message || "Design generation failed. Please try again.";
+      void sendMessage(errorMessage, { role: "assistant", sender: AI_SENDER_NAME });
+    }
+
+    setActiveRun(null);
+  }, [run, sendMessage]);
+
+  // Combined "can't submit right now" signal: someone's run is active per the
+  // shared ai-status-feed, or this client's own submission is in flight.
+  const isBusy = isGenerating || isSubmitting || Boolean(activeRun);
+
+  const handleSend = React.useCallback(async () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || isBusy || isSending) return;
 
-    setMessages((prev) => [
-      ...prev,
-      { id: generateMessageId(), role: "user", content: trimmed },
-      {
-        id: generateMessageId(),
-        role: "assistant",
-        content: "AI generation isn't wired up yet — this is a placeholder response.",
-      },
-    ]);
+    const sent = await sendMessage(trimmed);
+    if (!sent) return;
+
     setInput("");
-  }, [input]);
+    setIsSubmitting(true);
+
+    try {
+      const designResponse = await fetch("/api/ai/design", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: trimmed, roomId, projectId: roomId }),
+      });
+
+      if (!designResponse.ok) {
+        throw new Error("Couldn't start design generation.");
+      }
+
+      const { runId } = (await designResponse.json()) as { runId: string };
+
+      const tokenResponse = await fetch("/api/ai/design/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ runId }),
+      });
+
+      if (!tokenResponse.ok) {
+        throw new Error("Couldn't authorize the design run.");
+      }
+
+      const { token } = (await tokenResponse.json()) as { token: string };
+
+      handledRunIdRef.current = null;
+      setActiveRun({ runId, token });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Couldn't start design generation.";
+      void sendMessage(message, { role: "assistant", sender: AI_SENDER_NAME });
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [input, isBusy, isSending, sendMessage, roomId]);
 
   return (
     <aside
@@ -92,6 +164,13 @@ export function AiSidebar({ isOpen, onClose }: AiSidebarProps) {
             input={input}
             onInputChange={setInput}
             onSend={handleSend}
+            isBusy={isBusy || isSending}
+            isRunActive={isGenerating}
+            statusText={latestMessage?.text}
+            /* isRunActive here is the shared ai-status-feed signal specifically —
+               drives the status strip, distinct from isBusy which also covers
+               this client's own in-flight submission. */
+            sendError={sendError}
           />
         </TabsContent>
         <TabsContent value="specs" className="flex min-h-0 flex-1 flex-col overflow-hidden">

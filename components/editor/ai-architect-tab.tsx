@@ -1,17 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Bot, Send } from "lucide-react";
+import { Bot, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-
-export interface ChatMessage {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
+import type { AiChatFeedMessage } from "@/hooks/use-ai-chat-feed";
 
 const STARTER_PROMPTS = [
   "Design an e-commerce backend",
@@ -19,22 +14,46 @@ const STARTER_PROMPTS = [
   "Build a CI/CD pipeline",
 ];
 
+const TIMESTAMP_FORMATTER = new Intl.DateTimeFormat(undefined, {
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+function formatTimestamp(timestamp: number): string {
+  return TIMESTAMP_FORMATTER.format(new Date(timestamp));
+}
+
 interface AiArchitectTabProps {
-  messages: ChatMessage[];
+  messages: AiChatFeedMessage[];
   input: string;
   onInputChange: (value: string) => void;
   onSend: () => void;
+  isBusy?: boolean;
+  isRunActive?: boolean;
+  statusText?: string | null;
+  sendError?: string | null;
 }
 
-export function AiArchitectTab({ messages, input, onInputChange, onSend }: AiArchitectTabProps) {
+export function AiArchitectTab({
+  messages,
+  input,
+  onInputChange,
+  onSend,
+  isBusy = false,
+  isRunActive = false,
+  statusText = null,
+  sendError = null,
+}: AiArchitectTabProps) {
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
-        onSend();
+        if (!isBusy) {
+          onSend();
+        }
       }
     },
-    [onSend]
+    [onSend, isBusy]
   );
 
   return (
@@ -62,22 +81,55 @@ export function AiArchitectTab({ messages, input, onInputChange, onSend }: AiArc
               </div>
             </div>
           ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
-                  message.role === "user"
-                    ? "self-end border-2 border-brand/50 bg-accent-dim text-copy-primary"
-                    : "self-start border border-surface-border bg-elevated text-accent-ai-text"
-                )}
-              >
-                {message.content}
-              </div>
-            ))
+            messages.map((message) => {
+              const isUserMessage = message.role === "user";
+
+              return (
+                <div
+                  key={message.id}
+                  className={cn(
+                    "flex max-w-[85%] flex-col gap-0.5 rounded-2xl px-3 py-2 text-sm",
+                    isUserMessage
+                      ? "self-end bg-accent-chat text-bg-base"
+                      : "self-start border border-surface-border bg-elevated text-copy-primary"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "flex items-baseline gap-1.5 text-[11px] font-medium",
+                      isUserMessage ? "text-bg-base/70" : "text-accent-ai-text"
+                    )}
+                  >
+                    <span className="truncate">{message.sender}</span>
+                    <span aria-hidden="true" className="opacity-60">
+                      ·
+                    </span>
+                    <time
+                      dateTime={new Date(message.timestamp).toISOString()}
+                      className="shrink-0 opacity-60"
+                    >
+                      {formatTimestamp(message.timestamp)}
+                    </time>
+                  </div>
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                </div>
+              );
+            })
           )}
         </div>
       </ScrollArea>
+
+      {/* Compact status strip — shared ai-status-feed state, shown only while a run is active */}
+      {isRunActive && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex shrink-0 items-center gap-1.5 border-t border-surface-border bg-subtle px-4 py-1.5 text-xs text-accent-chat"
+        >
+          <Loader2 className="h-3 w-3 shrink-0 animate-spin" />
+          <span className="truncate">{statusText || "Ghost AI is working…"}</span>
+        </div>
+      )}
 
       <div className="shrink-0 border-t border-surface-border p-3">
         <div className="flex items-end gap-2">
@@ -85,23 +137,32 @@ export function AiArchitectTab({ messages, input, onInputChange, onSend }: AiArc
             value={input}
             onChange={(event) => onInputChange(event.target.value)}
             onKeyDown={handleKeyDown}
+            disabled={isBusy}
             placeholder="Ask Ghost AI to design your architecture..."
-            className="min-h-[72px] max-h-[160px] resize-none border-surface-border bg-subtle text-sm text-copy-primary placeholder:text-copy-muted"
+            className="min-h-[72px] max-h-[160px] resize-none border-surface-border bg-subtle text-sm text-copy-primary placeholder:text-copy-muted disabled:cursor-not-allowed disabled:opacity-60"
           />
           <Button
             type="button"
             size="icon"
             onClick={onSend}
-            disabled={!input.trim()}
-            className="h-9 w-9 shrink-0 bg-accent-ai text-white hover:bg-accent-ai/90"
-            aria-label="Send message"
+            disabled={isBusy || !input.trim()}
+            className="h-9 w-9 shrink-0 bg-accent-chat text-bg-base hover:bg-accent-chat/90"
+            aria-label={isBusy ? "Sending…" : "Send message"}
           >
-            <Send className="h-4 w-4" />
+            {isBusy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
-        <p className="mt-1.5 text-[11px] text-copy-faint">
-          Enter to send · Shift+Enter for a new line
-        </p>
+        {sendError ? (
+          <p className="mt-1.5 text-[11px] text-state-error">{sendError}</p>
+        ) : (
+          <p className="mt-1.5 text-[11px] text-copy-faint">
+            Enter to send · Shift+Enter for a new line
+          </p>
+        )}
       </div>
     </div>
   );

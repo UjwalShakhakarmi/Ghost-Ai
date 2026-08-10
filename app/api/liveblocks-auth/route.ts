@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentIdentity, hasProjectAccess } from "@/lib/project-access";
 import { getProjectById } from "@/lib/projects";
-import { getCursorColorForUser, getLiveblocksClient } from "@/lib/liveblocks";
+import { ensureFeedExists, getCursorColorForUser, getLiveblocksClient } from "@/lib/liveblocks";
+import { AI_CHAT_FEED_ID } from "@/types/tasks";
 
 export async function POST(request: NextRequest) {
   const identity = await getCurrentIdentity();
@@ -35,6 +36,12 @@ export async function POST(request: NextRequest) {
   await liveblocks.updateRoom(project.id, {
     usersAccesses: { [identity.userId]: ["room:write"] },
   });
+
+  // The ai-chat feed is client-driven (users post to it directly, unlike
+  // ai-status-feed which a Trigger.dev task creates lazily on first run), so
+  // it needs to exist before any client's first send — this auth route is
+  // the one place every room-joining client already passes through.
+  await ensureFeedExists(liveblocks, project.id, AI_CHAT_FEED_ID);
 
   const { status, body: sessionBody } = await liveblocks.identifyUser(
     identity.userId,

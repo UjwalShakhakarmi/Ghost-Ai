@@ -2,6 +2,7 @@
 
 import { useOther, useOthersConnectionIds } from "@liveblocks/react";
 import { useViewport } from "@xyflow/react";
+import { Loader2 } from "lucide-react";
 
 const FALLBACK_COLOR = "#808090";
 
@@ -17,6 +18,7 @@ function LiveCursor({ connectionId, viewportX, viewportY, zoom }: LiveCursorProp
     cursor: o.presence.cursor,
     name: o.info?.name || "Anonymous",
     color: o.info?.color || FALLBACK_COLOR,
+    thinking: o.presence.thinking,
   }));
 
   if (!other.cursor) return null;
@@ -39,9 +41,10 @@ function LiveCursor({ connectionId, viewportX, viewportY, zoom }: LiveCursorProp
         />
       </svg>
       <div
-        className="ml-3.5 -mt-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium text-white shadow"
+        className="ml-3.5 -mt-1 flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium text-white shadow"
         style={{ backgroundColor: other.color }}
       >
+        {other.thinking && <Loader2 className="h-2.5 w-2.5 shrink-0 animate-spin" />}
         {other.name}
       </div>
     </div>

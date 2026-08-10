@@ -113,14 +113,17 @@ export function EditorWorkspaceShell({
 
         {/* Collaborative Canvas */}
         <main className="relative flex flex-1 overflow-hidden bg-base">
-          <Canvas roomId={project.id} onSaveStatusChange={setSaveStatus} />
+          <Canvas roomId={project.id} onSaveStatusChange={setSaveStatus}>
+            {/* Rendered inside the same RoomProvider as the canvas (but
+                outside its ErrorBoundary/Suspense) so it can read shared
+                Liveblocks state — the ai-status-feed and AI presence —
+                without a canvas connection issue taking the sidebar down. */}
+            <AiSidebar
+              isOpen={isAiSidebarOpen}
+              onClose={() => setIsAiSidebarOpen(false)}
+            />
+          </Canvas>
         </main>
-
-        {/* Floating AI Sidebar Placeholder */}
-        <AiSidebar
-          isOpen={isAiSidebarOpen}
-          onClose={() => setIsAiSidebarOpen(false)}
-        />
       </div>
 
       {/* Project Dialogs (Create, Rename, Delete) */}
